@@ -8,7 +8,7 @@
 
 .todos {
   display: flex;
-  width: 47.5%;
+  width: 47%;
   flex-direction: column;
   padding: 15px;
   border-radius: 5px;

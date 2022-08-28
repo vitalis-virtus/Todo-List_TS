@@ -1,31 +1,56 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Todo } from "../../model";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
-import { MdDone } from "react-icons/md";
+import { MdDone, MdRefresh } from "react-icons/md";
 import "./TodoItem.css";
 import { Draggable } from "react-beautiful-dnd";
 
 interface Props {
   todo: Todo;
   todos: Todo[];
+  completedTodos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setCompletedTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+
   index: number;
 }
 
-const TodoItem: React.FC<Props> = ({ todo, todos, setTodos, index }) => {
+const TodoItem: React.FC<Props> = ({
+  todo,
+  todos,
+  completedTodos,
+  setTodos,
+  setCompletedTodos,
+  index,
+}) => {
   const [edit, setEdit] = useState<boolean>(false);
   const [editTodo, setEditTodo] = useState<string>(todo.todo);
 
   const handleDone = (id: string) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
-      )
-    );
+    const doneTodo = todos.find((todo) => todo.id === id);
+    if (doneTodo) {
+      doneTodo.isDone = !doneTodo.isDone;
+      console.log(doneTodo);
+      setCompletedTodos([...completedTodos, doneTodo]);
+      setTodos(todos.filter((todo) => !(todo.id === id)));
+    }
   };
 
   const handleDelete = (id: string) => {
     setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const handleRefresh = (id: string) => {
+    const refreshedTodo = todos.find((todo) => todo.id === id);
+    if (refreshedTodo) {
+      console.log(refreshedTodo);
+      refreshedTodo.isDone = !refreshedTodo.isDone;
+      console.log(refreshedTodo);
+      console.log(completedTodos);
+
+      setCompletedTodos([...completedTodos, refreshedTodo]);
+      setTodos(todos.filter((todo) => !(todo.id === id)));
+    }
   };
 
   const handleSubmit = (event: React.FormEvent, id: string) => {
@@ -66,21 +91,37 @@ const TodoItem: React.FC<Props> = ({ todo, todos, setTodos, index }) => {
           )}
 
           <div className="todos__item_control">
-            <span className="icon">
-              <AiFillEdit
-                onClick={() => {
-                  if (!edit && !todo.isDone) {
-                    setEdit(!edit);
-                  }
-                }}
-              />
-            </span>
+            {/* Edit TODO */}
+            {!todo.isDone && (
+              <span className="icon">
+                <AiFillEdit
+                  onClick={() => {
+                    if (!edit && !todo.isDone) {
+                      setEdit(!edit);
+                    }
+                  }}
+                />
+              </span>
+            )}
+
+            {/* Set TODO isDone to false -- REFRESH */}
+            {todo.isDone && (
+              <span className="icon">
+                <MdRefresh onClick={() => handleRefresh(todo.id)} />
+              </span>
+            )}
+
+            {/* Delete TODO */}
             <span className="icon">
               <AiFillDelete onClick={() => handleDelete(todo.id)} />
             </span>
-            <span className="icon">
-              <MdDone onClick={() => handleDone(todo.id)} />
-            </span>
+
+            {/* setTODO isDone to true */}
+            {!todo.isDone && (
+              <span className="icon">
+                <MdDone onClick={() => handleDone(todo.id)} />
+              </span>
+            )}
           </div>
         </form>
       )}

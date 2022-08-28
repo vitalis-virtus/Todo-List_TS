@@ -9,8 +9,12 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
 const App: React.FC = () => {
   const [todo, setTodo] = useState<string>("");
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([
+    { isDone: false, todo: "Active todo", id: "id1" },
+  ]);
+  const [completedTodos, setCompletedTodos] = useState<Todo[]>([
+    { isDone: true, todo: "Completed todo", id: "id2" },
+  ]);
 
   const handleAdd = (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,15 +40,26 @@ const App: React.FC = () => {
       active = todos,
       complete = completedTodos;
 
-    if (source.droppableId === "TodosList") {
+    const from = source.droppableId;
+    const to = destination.droppableId;
+
+    if (from === "ActiveTasks") {
       add = active[source.index];
       active.splice(source.index, 1);
+
+      if (!(to === "ActiveTasks")) {
+        add.isDone = !add.isDone;
+      }
     } else {
       add = complete[source.index];
       complete.splice(source.index, 1);
+
+      if (!(to === "CompletedTasks")) {
+        add.isDone = !add.isDone;
+      }
     }
 
-    if (destination.droppableId === "TodosList") {
+    if (to === "ActiveTasks") {
       active.splice(destination.index, 0, add);
     } else {
       complete.splice(destination.index, 0, add);
